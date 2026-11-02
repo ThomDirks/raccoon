@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Thumbnail Bench · Raccoon</title>
+<meta name="description" content="Test YouTube thumbnails in a realistic feed on PC, tablet, phone and TV before you upload.">
+<link rel="icon" href="../assets/raccoon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Roboto:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="stylesheet" href="bench.css">
+</head>
+<body>
+<nav class="site-nav" aria-label="Site" style="--nav-max:none">
+  <a class="brand" href="../"><img src="../assets/raccoon.svg" alt=""><span class="stack"><b>Raccoon</b><span>OSRS YouTube Tools</span></span></a>
+  <div class="site-links">
+    <a href="../photo-booth/">Photo Booth</a>
+    <a href="../thumbnail-bench/" aria-current="page">Thumbnail Bench</a>
+  </div>
+</nav>
+
+<div class="wrap">
+  <header>
+    <h1>Thumbnail Bench</h1>
+    <p class="lede">Your thumbnails spread through a long home feed among other people's, on a PC, tablet, phone and TV, each behaving the way that device does. Everything stays in this browser, and your swaps are still here next time.</p>
+  </header>
+
+  <div class="strip">
+    <section class="panel" aria-labelledby="mineTitle">
+      <div class="head-row">
+        <div>
+          <h2 id="mineTitle">Your thumbnails</h2>
+          <p class="sub" id="mineSub">Click a thumbnail, or drop a new export onto its card, to replace it.</p>
+        </div>
+        <div class="btns"><button class="mini" id="mineFolderBtn" type="button">Use a folder</button><button class="mini" id="resetBtn" type="button">Back to examples</button></div>
+      </div>
+      <div class="cards" id="cards"></div>
+      <div class="folder-status" id="mineFolder" hidden></div>
+      <input class="hidden-input" type="file" id="mineDir" webkitdirectory multiple aria-hidden="true" tabindex="-1">
+      <input class="hidden-input" type="file" id="addInput" accept="image/*" multiple aria-hidden="true" tabindex="-1">
+      <input class="hidden-input" type="file" id="swapInput" accept="image/*" aria-hidden="true" tabindex="-1">
+    </section>
+
+    <section class="panel others-panel" id="othersPanel" aria-labelledby="othersTitle">
+      <div class="head-row" style="margin:0">
+        <div>
+          <h2 id="othersTitle">Other videos</h2>
+          <p class="sub">Competitor thumbnails to fill the feed</p>
+        </div>
+        <span class="big-count" id="otherCount">0</span>
+      </div>
+      <p class="note">Drop in as many screenshots as you like, all at once. The file name becomes the video title, so name them after the real titles if you want the text to match.</p>
+      <div class="pile" id="pile"></div>
+      <div class="head-row" style="margin:0">
+        <button class="mini primary" id="addOther" type="button">Add other thumbnails</button>
+        <div class="btns"><button class="mini" id="othersFolderBtn" type="button">Use a folder</button><button class="mini" id="clearOthers" type="button">Remove all</button></div>
+      </div>
+      <div class="folder-status" id="othersFolder" hidden></div>
+      <input class="hidden-input" type="file" id="othersDir" webkitdirectory multiple aria-hidden="true" tabindex="-1">
+      <input class="hidden-input" type="file" id="otherInput" accept="image/*" multiple aria-hidden="true" tabindex="-1">
+    </section>
+  </div>
+
+  <div class="tabs" role="tablist" aria-label="Device">
+    <button type="button" role="tab" id="tab-pc" data-dev="pc" aria-selected="true" aria-controls="stage-pc">PC<span>browser</span></button>
+    <button type="button" role="tab" id="tab-tablet" data-dev="tablet" aria-selected="false" aria-controls="stage-tablet">Tablet<span>iPad app</span></button>
+    <button type="button" role="tab" id="tab-phone" data-dev="phone" aria-selected="false" aria-controls="stage-phone">Phone<span>app</span></button>
+    <button type="button" role="tab" id="tab-tv" data-dev="tv" aria-selected="false" aria-controls="stage-tv">TV<span>app</span></button>
+  </div>
+
+  <div class="panel toolbar" role="group" aria-label="Feed settings">
+    <div class="seg" role="group" aria-label="Feed theme" id="themeSeg">
+      <button type="button" id="ytDark" aria-pressed="true">Dark</button>
+      <button type="button" id="ytLight" aria-pressed="false">Light</button>
+    </div>
+    <div class="tb-group" data-for="pc"><span>Per row</span>
+      <div class="seg" role="group" aria-label="Videos per row" id="colsSeg">
+        <button type="button" data-c="3" aria-pressed="false">3</button>
+        <button type="button" data-c="4" aria-pressed="true">4</button>
+        <button type="button" data-c="5" aria-pressed="false">5</button>
+      </div>
+    </div>
+    <div class="tb-group" data-for="tablet" hidden><span>Hold it</span>
+      <div class="seg" role="group" aria-label="Tablet orientation" id="orientSeg">
+        <button type="button" data-o="land" aria-pressed="true">Landscape</button>
+        <button type="button" data-o="port" aria-pressed="false">Portrait</button>
+      </div>
+    </div>
+    <label class="tb-group" for="every"><span>One of mine every</span><input type="number" id="every" min="2" max="40" value="7"><span>videos</span></label>
+    <label class="tb-group" for="channel"><span>Channel</span><input id="channel" value="Your channel" style="font:inherit;font-size:13px;width:140px;padding:4px 6px;border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--ink)"></label>
+    <span class="tb-sep" aria-hidden="true"></span>
+    <label class="toggle"><input type="checkbox" id="tPreview" checked> <span id="previewLabel">Preview on hover</span></label>
+    <label class="toggle"><input type="checkbox" id="tShorts" checked> Shorts shelf</label>
+    <label class="toggle"><input type="checkbox" id="tMark"> Outline mine</label>
+    <label class="toggle"><input type="checkbox" id="tBar"> Watched bars</label>
+    <label class="toggle"><input type="checkbox" id="tGray"> Grayscale</label>
+    <label class="toggle"><input type="checkbox" id="tBlur"> Blur</label>
+    <button class="mini" id="shuffleBtn" type="button">Shuffle</button>
+  </div>
+
+  <section id="stage-pc" role="tabpanel" aria-labelledby="tab-pc">
+    <div class="feed" id="pc">
+      <div class="chips" aria-hidden="true"><span>All</span><span>Gaming</span><span>Old School RuneScape</span><span>Ambient music</span><span>Podcasts</span><span>Live</span><span>Role-playing games</span><span>Relaxation</span><span>Recently uploaded</span><span>Watched</span><span>New to you</span></div>
+      <div class="grid" id="grid"></div>
+    </div>
+  </section>
+
+  <section id="stage-tablet" class="bay" role="tabpanel" aria-labelledby="tab-tablet" hidden>
+    <p class="stage-note">Scroll inside the screen. The video in the middle of the screen previews, as the app does when playback in feeds is on.</p>
+    <div class="device-outer" data-w="1208" data-h="848" id="tabletOuter">
+      <div class="device tablet" id="tabletDevice"><div class="screen feed touch" id="tabletScreen" style="width:1180px;height:820px"></div></div>
+    </div>
+  </section>
+
+  <section id="stage-phone" class="bay" role="tabpanel" aria-labelledby="tab-phone" hidden>
+    <p class="stage-note">Scroll inside the phone. The video in the middle of the screen previews, as the app does when playback in feeds is on.</p>
+    <div class="device-outer" data-w="418" data-h="872" id="phoneOuter">
+      <div class="device phone"><div class="screen feed touch" id="phoneScreen" style="width:390px;height:844px"></div></div>
+    </div>
+  </section>
+
+  <section id="stage-tv" class="bay" role="tabpanel" aria-labelledby="tab-tv" hidden>
+    <p class="stage-note">Use the arrow keys (or point at a video) to move the focus, like a remote. The TV app is always dark. Shown scaled down from 1920 × 1080, which is roughly how big it looks from the sofa.</p>
+    <div class="device-outer" data-w="1956" data-h="1116" id="tvOuter">
+      <div class="device tv"><div class="screen feed" id="tvScreen" style="width:1920px;height:1080px" data-yt="dark"></div></div>
+    </div>
+  </section>
+
+<script src="bench.js"></script>
+</body>
+</html>

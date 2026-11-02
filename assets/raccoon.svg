@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Raccoon">
+  <polygon points="9,24 13,5 27,15" fill="#3b3a40"/>
+  <polygon points="12,20 14,10 22,15" fill="#8a7e73"/>
+  <polygon points="55,24 51,5 37,15" fill="#3b3a40"/>
+  <polygon points="52,20 50,10 42,15" fill="#8a7e73"/>
+  <polygon points="7,31 16,14 32,9 48,14 57,31 50,46 32,57 14,46" fill="#9b968f"/>
+  <polygon points="16,14 32,9 48,14 32,25" fill="#b6b1a9"/>
+  <polygon points="7,31 16,14 20,26" fill="#88837c"/>
+  <polygon points="57,31 48,14 44,26" fill="#88837c"/>
+  <polygon points="30,11 34,11 33.2,26 30.8,26" fill="#6e6962"/>
+  <polygon points="6,31 18,24 27,28 32,26 37,28 46,24 58,31 49,37 39,37 32,33 25,37 15,37" fill="#232228"/>
+  <circle cx="21.5" cy="30.5" r="2.6" fill="#f0cf72"/>
+  <circle cx="42.5" cy="30.5" r="2.6" fill="#f0cf72"/>
+  <polygon points="23,39 32,34.5 41,39 38.5,48 32,52.5 25.5,48" fill="#ede8e0"/>
+  <polygon points="28.6,40.5 35.4,40.5 32,44.5" fill="#232228"/>
+</svg>

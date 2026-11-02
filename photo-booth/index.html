@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Photo Booth · Raccoon</title>
+<meta name="description" content="Pose Old School RuneScape models exported from Creator's Kit and save transparent PNGs, PNG sequences and GIFs.">
+<link rel="icon" href="../assets/raccoon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="stylesheet" href="booth.css">
+</head>
+<body>
+<nav class="site-nav" aria-label="Site">
+  <a class="brand" href="../"><img src="../assets/raccoon.svg" alt=""><span class="stack"><b>Raccoon</b><span>OSRS YouTube Tools</span></span></a>
+  <div class="site-links">
+    <a href="../photo-booth/" aria-current="page">Photo Booth</a>
+    <a href="../thumbnail-bench/">Thumbnail Bench</a>
+  </div>
+</nav>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Photo Booth</h1>
+      <p class="lede">Load models exported from the Creator's Kit plugin, turn them to the angle you want, and save transparent PNGs or GIFs. Lighting follows the camera, so every angle is lit the same way.</p>
+    </div>
+    <div class="file-status" id="fileStatus">Loaded: <b>Local Player (1).json</b> (example)</div>
+  </header>
+
+  <div class="modes" role="tablist" aria-label="Mode">
+    <button type="button" role="tab" id="tabOne" data-mode="one" aria-selected="true" aria-controls="modeOne">One model</button>
+    <button type="button" role="tab" id="tabTwo" data-mode="two" aria-selected="false" aria-controls="modeTwo">Two models</button>
+  </div>
+
+  <div class="backdrop-bar" id="bdBar" aria-label="Backdrop">
+    <div class="bd-main">
+      <span class="group-title">Backdrop</span>
+      <span class="bd-thumb" id="bdThumb" hidden><img alt="Current backdrop"></span>
+      <span class="bd-hint" id="bdHint">Press <kbd>Ctrl</kbd> + <kbd>V</kbd> to paste a screenshot behind the models, or</span>
+      <label class="mini-btn upload" for="bdFile">choose an image<input type="file" id="bdFile" accept="image/*"></label>
+    </div>
+    <div class="bd-controls" id="bdControls" hidden>
+      <label class="check"><input type="checkbox" id="bdShow" checked> Show</label>
+      <span class="bd-seg" role="group" aria-label="How the backdrop fills the preview">
+        <button type="button" class="mini-btn" id="bdFill" aria-pressed="true">Fill</button>
+        <button type="button" class="mini-btn" id="bdFit" aria-pressed="false">Fit</button>
+      </span>
+      <label class="bd-field" for="bdZoom">Zoom <input type="range" id="bdZoom" min="50" max="300" step="5" value="100"><output id="bdZoomOut" for="bdZoom">100%</output></label>
+      <label class="bd-field" for="bdX">Left/right <input type="range" id="bdX" min="-50" max="50" step="1" value="0"></label>
+      <label class="bd-field" for="bdY">Up/down <input type="range" id="bdY" min="-50" max="50" step="1" value="0"></label>
+      <label class="bd-field" for="bdDim">Brightness <input type="range" id="bdDim" min="20" max="100" step="5" value="100"><output id="bdDimOut" for="bdDim">100%</output></label>
+      <button type="button" class="mini-btn" id="bdClear">Remove</button>
+    </div>
+    <p class="bd-note">Only for lining things up. It's never part of a saved PNG, zip or GIF, and it stays here next time you open the page.</p>
+  </div>
+
+  <section class="mode" id="modeOne" role="tabpanel" aria-labelledby="tabOne">
+  <div class="bench">
+    <div class="stage-col">
+      <div class="stage" id="stage" aria-label="Model preview. Drag to turn the model.">
+        <div class="bg-layer" hidden><img alt=""></div>
+        <canvas id="stageCanvas"></canvas>
+        <div class="readout" id="readout">0° · tilt 0°</div>
+        <div class="hint">Drag to turn · drop .json files here · Ctrl+V a backdrop</div>
+        <div class="drop-veil" id="dropVeil" hidden>Drop the .json files to load them</div>
+      </div>
+      <div class="timeline" id="timeline">
+        <button class="play" id="play" type="button" disabled>Play</button>
+        <div class="scrub">
+          <input type="range" id="frame" min="0" max="0" step="1" value="0" disabled aria-label="Animation frame">
+          <div class="ticks" id="tickMarks" aria-hidden="true"></div>
+        </div>
+        <output class="frame-out" id="frameOut" for="frame" title="Comma and full stop step one frame">frame 1 / 1</output>
+        <select id="speed" aria-label="Playback speed" disabled>
+          <option value="0.25">0.25×</option>
+          <option value="0.5">0.5×</option>
+          <option value="1" selected>1×</option>
+        </select>
+      </div>
+      <p class="msg" id="animMsg">No animation in this file. Load an export that has animation frames, or load several single-frame exports at once.</p>
+    </div>
+
+    <aside class="rail">
+      <div class="group">
+        <h2 class="group-title">Model</h2>
+        <label class="upload btn secondary" for="fileInput">Load .json export(s)
+          <input type="file" id="fileInput" accept=".json,application/json" multiple>
+        </label>
+        <p class="msg" id="loadMsg">Export from Creator's Kit (3D Models, Local Player) and load the file here.</p>
+        <details class="howto">
+          <summary>Exporting animation frames</summary>
+          <p>On the object in Creator's Kit, set <b>Anim ID</b> to the animation and <b>Frame</b> to 0, then Export 3D. Change Frame to 1, 2, 3 and export each one.</p>
+          <p>Select all those files at once here. They're sorted by file name, so name them in order (guardian_00, guardian_01…).</p>
+        </details>
+      </div>
+
+      <div class="group">
+        <h2 class="group-title">Camera</h2>
+        <div class="field">
+          <div class="field-row"><label for="yaw">Turn</label><output id="yawOut" for="yaw">0°</output></div>
+          <input type="range" id="yaw" min="0" max="359" step="1" value="0">
+          <div class="presets" id="yawPresets"></div>
+        </div>
+        <div class="field">
+          <div class="field-row"><label for="tilt">Tilt</label><output id="tiltOut" for="tilt">0°</output></div>
+          <input type="range" id="tilt" min="-20" max="60" step="1" value="0">
+          <span class="note">Positive looks down from above.</span>
+        </div>
+      </div>
+
+      <div class="group">
+        <h2 class="group-title">Light</h2>
+        <div class="field">
+          <div class="field-row"><label for="ambient">Brightness</label><output id="ambientOut" for="ambient">55</output></div>
+          <input type="range" id="ambient" min="25" max="85" step="1" value="55">
+        </div>
+        <div class="field">
+          <div class="field-row"><label for="contrast">Shading</label><output id="contrastOut" for="contrast">70</output></div>
+          <input type="range" id="contrast" min="0" max="100" step="1" value="70">
+          <span class="note">0 is flat colour, like an item sprite.</span>
+        </div>
+      </div>
+
+      <div class="group">
+        <h2 class="group-title">Output</h2>
+        <div class="field">
+          <label for="size">Character height</label>
+          <select id="size">
+            <option value="300">300 px</option>
+            <option value="600" selected>600 px</option>
+            <option value="1000">1000 px</option>
+            <option value="1600">1600 px</option>
+          </select>
+          <span class="note">Every angle uses the same scale, so widths differ per angle.</span>
+        </div>
+        <div class="field">
+          <div class="field-row"><label for="pad">Empty border</label><output id="padOut" for="pad">8 px</output></div>
+          <input type="range" id="pad" min="0" max="64" step="2" value="8">
+        </div>
+        <button class="btn" id="saveOne" type="button">Save this angle (.png)</button>
+        <button class="btn secondary" id="saveAll" type="button">Save ticked angles (.zip)</button>
+        <div class="field" id="fpsField" hidden>
+          <label for="seqFps">Frame rate for the zip</label>
+          <select id="seqFps">
+            <option value="25">25 fps</option>
+            <option value="30" selected>30 fps</option>
+            <option value="50">50 fps</option>
+            <option value="60">60 fps</option>
+          </select>
+          <span class="note">Match your Premiere sequence, then import the PNGs as an image sequence.</span>
+        </div>
+        <button class="btn secondary" id="saveFrames" type="button" hidden>Save the animation as PNGs (.zip)</button>
+        <p class="msg" id="saveMsg"></p>
+      </div>
+
+      <div class="group">
+        <h2 class="group-title">GIF</h2>
+        <div class="field">
+          <label for="gifMotion">Motion</label>
+          <select id="gifMotion">
+            <option value="anim">The animation, at this angle</option>
+            <option value="spin">Turntable, one full turn</option>
+          </select>
+          <span class="note" id="gifMotionNote">Uses the playback speed you picked under the preview.</span>
+        </div>
+        <div class="field">
+          <label for="gifSize">Character height</label>
+          <select id="gifSize">
+            <option value="240">240 px</option>
+            <option value="360">360 px</option>
+            <option value="480" selected>480 px</option>
+            <option value="720">720 px</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="gifBg">Background</label>
+          <div class="gif-bg">
+            <select id="gifBg">
+              <option value="clear">Transparent</option>
+              <option value="color">Solid colour</option>
+            </select>
+            <input type="color" id="gifColor" value="#00b140" aria-label="Background colour" hidden>
+          </div>
+          <span class="note" id="gifBgNote">GIF transparency has hard edges. A solid colour (green for keying in Premiere) keeps them smooth.</span>
+        </div>
+        <button class="btn" id="saveGif" type="button">Save GIF</button>
+        <p class="msg" id="gifMsg"></p>
+      </div>
+    </aside>
+  </div>
+
+  <section class="sheet" aria-labelledby="sheetTitle">
+    <div class="sheet-head">
+      <h2 class="group-title" id="sheetTitle">Contact sheet</h2>
+      <p>Click a frame to jump to that angle. Ticked frames go into the zip.</p>
+    </div>
+    <div class="frames" id="frames"></div>
+  </section>
+  </section>
+
+  <section class="mode" id="modeTwo" role="tabpanel" aria-labelledby="tabTwo" hidden>
+    <div class="bench">
+      <div class="stage-col">
+        <div class="stage" id="sStage" aria-label="Scene preview. Drag to turn the camera.">
+          <div class="bg-layer" hidden><img alt=""></div>
+          <canvas id="sCanvas"></canvas>
+          <div class="readout" id="sReadout">0° · tilt 0°</div>
+          <div class="hint">Drag to turn · drop .json files on the left or right half · Ctrl+V a backdrop</div>
+          <div class="halves" id="sVeil" hidden><div data-k="0">Load as model A</div><div data-k="1">Load as model B</div></div>
+        </div>
+        <div class="timeline">
+          <button class="play" id="sPlay" type="button" disabled>Play</button>
+          <div class="scrub"><input type="range" id="sTime" min="0" max="0" step="10" value="0" disabled aria-label="Scene time"></div>
+          <output class="frame-out" id="sTimeOut" for="sTime" title="Comma and full stop step to the previous or next change">no animation</output>
+          <select id="sSpeed" aria-label="Playback speed" disabled>
+            <option value="0.25">0.25×</option>
+            <option value="0.5">0.5×</option>
+            <option value="1" selected>1×</option>
+          </select>
+        </div>
+        <p class="msg" id="sAnimMsg">Neither model is animated yet. Load animated exports into A or B and they play together on one timeline.</p>
+
+        <div class="actors">
+          <div class="actor" id="actor0" data-k="0">
+            <div class="actor-head"><span class="badge">A</span><b id="aName0">Model A</b><span class="side">left</span></div>
+            <label class="upload btn secondary" for="aFile0">Load .json export(s)
+              <input type="file" id="aFile0" accept=".json,application/json" multiple>
+            </label>
+            <p class="msg" id="aMsg0"></p>
+            <div class="field">
+              <div class="field-row"><label for="aFace0">Facing</label><output id="aFaceOut0" for="aFace0">90°</output></div>
+              <input type="range" id="aFace0" min="-180" max="180" step="1" value="90">
+            </div>
+            <div class="field">
+              <div class="field-row"><label for="aStart0">Start on frame</label><output id="aStartOut0" for="aStart0">1 / 1</output></div>
+              <input type="range" id="aStart0" min="0" max="0" step="1" value="0" disabled>
+            </div>
+            <label class="check"><input type="checkbox" id="aAnim0" checked disabled> Animate (off holds the start frame)</label>
+          </div>
+          <div class="actor" id="actor1" data-k="1">
+            <div class="actor-head"><span class="badge">B</span><b id="aName1">Model B</b><span class="side">right</span></div>
+            <label class="upload btn secondary" for="aFile1">Load .json export(s)
+              <input type="file" id="aFile1" accept=".json,application/json" multiple>
+            </label>
+            <p class="msg" id="aMsg1"></p>
+            <div class="field">
+              <div class="field-row"><label for="aFace1">Facing</label><output id="aFaceOut1" for="aFace1">-90°</output></div>
+              <input type="range" id="aFace1" min="-180" max="180" step="1" value="-90">
+            </div>
+            <div class="field">
+              <div class="field-row"><label for="aStart1">Start on frame</label><output id="aStartOut1" for="aStart1">1 / 1</output></div>
+              <input type="range" id="aStart1" min="0" max="0" step="1" value="0" disabled>
+            </div>
+            <label class="check"><input type="checkbox" id="aAnim1" checked disabled> Animate (off holds the start frame)</label>
+          </div>
+        </div>
+      </div>
+
+      <aside class="rail">
+        <div class="group">
+          <h2 class="group-title">Placement</h2>
+          <div class="presets" id="sPresets">
+            <button type="button" class="chip" data-p="face">Face to face</button>
+            <button type="button" class="chip" data-p="side">Side by side</button>
+            <button type="button" class="chip" data-p="back">Back to back</button>
+          </div>
+          <div class="field">
+            <div class="field-row"><label for="sDist">Distance</label><output id="sDistOut" for="sDist">2 tiles</output></div>
+            <input type="range" id="sDist" min="0" max="8" step="0.25" value="2">
+            <span class="note">One tile is one square on the game's floor, so this matches in-game spacing.</span>
+          </div>
+          <div class="field">
+            <div class="field-row"><label for="sDepth">Depth</label><output id="sDepthOut" for="sDepth">0 tiles</output></div>
+            <input type="range" id="sDepth" min="-3" max="3" step="0.25" value="0">
+            <span class="note">Positive brings B toward the camera and A away.</span>
+          </div>
+          <button class="btn secondary" id="sSwap" type="button">Swap A and B</button>
+        </div>
+
+        <div class="group">
+          <h2 class="group-title">Camera</h2>
+          <div class="field">
+            <div class="field-row"><label for="sYaw">Turn</label><output id="sYawOut" for="sYaw">0°</output></div>
+            <input type="range" id="sYaw" min="0" max="359" step="1" value="0">
+          </div>
+          <div class="field">
+            <div class="field-row"><label for="sTilt">Tilt</label><output id="sTiltOut" for="sTilt">0°</output></div>
+            <input type="range" id="sTilt" min="-20" max="60" step="1" value="0">
+          </div>
+        </div>
+
+        <div class="group">
+          <h2 class="group-title">Light</h2>
+          <div class="field">
+            <div class="field-row"><label for="sAmbient">Brightness</label><output id="sAmbientOut" for="sAmbient">55</output></div>
+            <input type="range" id="sAmbient" min="25" max="85" step="1" value="55">
+          </div>
+          <div class="field">
+            <div class="field-row"><label for="sContrast">Shading</label><output id="sContrastOut" for="sContrast">70</output></div>
+            <input type="range" id="sContrast" min="0" max="100" step="1" value="70">
+          </div>
+        </div>
+
+        <div class="group">
+          <h2 class="group-title">Output</h2>
+          <div class="field">
+            <label for="sSize">Height of the taller model</label>
+            <select id="sSize">
+              <option value="300">300 px</option>
+              <option value="600" selected>600 px</option>
+              <option value="1000">1000 px</option>
+              <option value="1600">1600 px</option>
+            </select>
+            <span class="note">Both models keep their in-game size relative to each other.</span>
+          </div>
+          <div class="field">
+            <div class="field-row"><label for="sPad">Empty border</label><output id="sPadOut" for="sPad">8 px</output></div>
+            <input type="range" id="sPad" min="0" max="64" step="2" value="8">
+          </div>
+          <div class="field">
+            <label for="sWho">What to save</label>
+            <select id="sWho">
+              <option value="both">Both models together</option>
+              <option value="0">Only model A</option>
+              <option value="1">Only model B</option>
+            </select>
+            <label class="check" id="sAlignRow" hidden><input type="checkbox" id="sAlign" checked> Same canvas as the full scene</label>
+            <span class="note" id="sWhoNote">Applies to the PNG, the zip and the GIF.</span>
+          </div>
+          <button class="btn" id="sSavePng" type="button">Save this moment (.png)</button>
+          <div class="field" id="sFpsField" hidden>
+            <label for="sFps">Frame rate for the zip</label>
+            <select id="sFps">
+              <option value="25">25 fps</option>
+              <option value="30" selected>30 fps</option>
+              <option value="50">50 fps</option>
+              <option value="60">60 fps</option>
+            </select>
+            <span class="note">Match your Premiere sequence, then import the PNGs as an image sequence.</span>
+          </div>
+          <button class="btn secondary" id="sSaveFrames" type="button" hidden>Save the animation as PNGs (.zip)</button>
+          <p class="msg" id="sSaveMsg"></p>
+        </div>
+
+        <div class="group">
+          <h2 class="group-title">GIF</h2>
+          <div class="field">
+            <label for="sGifMotion">Motion</label>
+            <select id="sGifMotion">
+              <option value="anim">Both animations, at this angle</option>
+              <option value="spin">Turntable, one full turn</option>
+            </select>
+          </div>
+          <div class="field" id="sLoopField" hidden>
+            <label for="sLoop">Loop length</label>
+            <select id="sLoop">
+              <option value="long">Until the longer animation ends</option>
+              <option value="a">Model A's animation</option>
+              <option value="b">Model B's animation</option>
+            </select>
+            <span class="note" id="sLoopNote">The shorter animation keeps looping inside it.</span>
+          </div>
+          <div class="field">
+            <label for="sGifSize">Height of the taller model</label>
+            <select id="sGifSize">
+              <option value="240">240 px</option>
+              <option value="360">360 px</option>
+              <option value="480" selected>480 px</option>
+              <option value="720">720 px</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="sGifBg">Background</label>
+            <div class="gif-bg">
+              <select id="sGifBg">
+                <option value="clear">Transparent</option>
+                <option value="color">Solid colour</option>
+              </select>
+              <input type="color" id="sGifColor" value="#00b140" aria-label="Background colour" hidden>
+            </div>
+          </div>
+          <button class="btn" id="sSaveGif" type="button">Save GIF</button>
+          <p class="msg" id="sGifMsg"></p>
+        </div>
+      </aside>
+    </div>
+  </section>
+</div>
+
+<script src="../assets/vendor/three-r128.min.js"></script>
+<script src="../assets/vendor/jszip-3.10.1.min.js"></script>
+<script src="loader.js"></script>
+</body>
+</html>
